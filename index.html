@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Find My Seat</title>
+    <style>
+        :root { --primary: #8e735b; --gold: #d4af37; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; text-align: center; background: #f9f6f2; margin: 0; padding: 20px; }
+        h1 { color: var(--primary); margin-bottom: 10px; }
+        
+        /* ส่วนค้นหา */
+        .search-container { margin-bottom: 20px; }
+        input { padding: 12px; width: 80%; max-width: 300px; border: 1px solid #ccc; border-radius: 25px; outline: none; }
+
+        /* ส่วนแผนผัง */
+        .map-container { 
+            position: relative; width: 100%; max-width: 500px; margin: 0 auto; 
+            background: white; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); padding: 20px;
+        }
+        svg { width: 100%; height: auto; cursor: pointer; }
+        
+        /* สไตล์โต๊ะ */
+        .table { fill: #e0e0e0; transition: 0.3s; stroke: #fff; stroke-width: 2; }
+        .table:active { fill: var(--gold); }
+        .table.highlight { fill: #ff4757; transform: scale(1.1); transform-origin: center; }
+        .table-text { font-size: 12px; font-weight: bold; pointer-events: none; fill: #555; }
+
+        /* ป๊อปอัปแสดงชื่อ */
+        #info-box { 
+            margin-top: 20px; padding: 15px; background: var(--primary); color: white; 
+            border-radius: 10px; display: none; animation: fadeIn 0.5s;
+        }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    </style>
+</head>
+<body>
+
+    <h1>Wedding Seating Plan</h1>
+    
+    <div class="search-container">
+        <input type="text" id="searchInput" placeholder="พิมพ์ชื่อของคุณเพื่อหาโต๊ะ..." oninput="searchName()">
+    </div>
+
+    <div class="map-container">
+        <svg viewBox="0 0 400 300" id="seatingMap">
+            <circle cx="100" cy="80" r="35" class="table" id="table1" onclick="showInfo('1')"/>
+            <text x="100" y="85" text-anchor="middle" class="table-text">T1</text>
+            
+            <circle cx="300" cy="80" r="35" class="table" id="table2" onclick="showInfo('2')"/>
+            <text x="300" y="85" text-anchor="middle" class="table-text">T2</text>
+
+            <circle cx="100" cy="220" r="35" class="table" id="table3" onclick="showInfo('3')"/>
+            <text x="100" y="225" text-anchor="middle" class="table-text">T3</text>
+
+            <circle cx="300" cy="220" r="35" class="table" id="table4" onclick="showInfo('4')"/>
+            <text x="300" y="225" text-anchor="middle" class="table-text">T4</text>
+        </svg>
+    </div>
+
+    <div id="info-box"></div>
+
+    <script>
+        // 1. ข้อมูลแขก (จำลองฐานข้อมูล)
+        const guestData = {
+            "1": ["คุณสมชาย", "คุณสมหญิง", "แก๊งค์เพื่อนเจ้าบ่าว"],
+            "2": ["คุณพ่อ", "คุณแม่", "ญาติผู้ใหญ่"],
+            "3": ["โต๊ะเพื่อนมหาลัย", "โก้ (ในคลิป)"],
+            "4": ["โต๊ะเพื่อนที่ทำงาน"]
+        };
+
+        // 2. ฟังก์ชันเมื่อกดที่โต๊ะ
+        function showInfo(tableId) {
+            const infoBox = document.getElementById('info-box');
+            const guests = guestData[tableId];
+            infoBox.style.display = 'block';
+            infoBox.innerHTML = `<strong>โต๊ะหมายเลข ${tableId}</strong><br>${guests.join(', ')}`;
+            
+            // ล้าง highlight เก่า
+            document.querySelectorAll('.table').forEach(t => t.classList.remove('highlight'));
+            // ใส่ highlight โต๊ะที่กด
+            document.getElementById('table' + tableId).classList.add('highlight');
+        }
+
+        // 3. ระบบค้นหาชื่อ
+        function searchName() {
+            const input = document.getElementById('searchInput').value.toLowerCase();
+            if (input === "") return;
+
+            for (let tableId in guestData) {
+                const found = guestData[tableId].some(name => name.toLowerCase().includes(input));
+                if (found) {
+                    showInfo(tableId);
+                    break; 
+                }
+            }
+        }
+    </script>
+</body>
+</html>
